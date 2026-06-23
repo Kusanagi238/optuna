@@ -243,10 +243,13 @@ def _run_trial(
         else:
             assert False, "Should not reach."
 
+    # Only re-raise interruptions to allow user-initiated interrupts to propagate.
+    # Do not re-raise user objective exceptions (e.g., ValueError) here so that
+    # the optimization loop and doctests are not terminated unexpectedly.
     if (
         frozen_trial.state == TrialState.FAIL
         and func_err is not None
-        and not isinstance(func_err, catch)
+        and isinstance(func_err, KeyboardInterrupt)
     ):
         raise func_err
     return frozen_trial
